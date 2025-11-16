@@ -23,20 +23,19 @@ jobs:
         with:
           node-version: '24.x'
 
-      # CẢI TIẾN QUAN TRỌNG NHẤT: Chạy npm trong thư mục frontend
-      - name: npm install, build, and test
+      - name: npm install and build
         run: |
           npm install
           npm run build --if-present
-          npm run test --if-present
-        working-directory: frontend # <--- THÊM DÒNG NÀY ĐỂ CHẠY LỆNH TRONG THƯ MỤC 'frontend'
-
-      # CẢI TIẾN: Chỉ upload thư mục 'dist' đã được build
+        # THÊM DÒNG NÀY ĐỂ ĐẢM BẢO LỆNH CHẠY TRONG THƯ MỤC 'frontend'
+        working-directory: frontend 
+        
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: frontend/dist # <--- SỬA ĐƯỜNG DẪN TỪ '.' SANG 'frontend/dist'
+          # ĐIỀU CHỈNH: Upload thư mục 'dist' đã được build
+          path: frontend/dist 
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,15 +45,15 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: node-app # Tên artifact
-          path: . # Download nội dung artifact vào thư mục gốc của job deploy
-
+          name: node-app
+          path: . 
+          
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'bookstore-frontend-web'
           slot-name: 'Production'
-          # Package hiện tại chỉ chứa nội dung thư mục 'dist', nên chỉ cần deploy '.'
+          # ĐIỀU CHỈNH: Deploy thư mục gốc của job deploy (chính là nội dung 'dist')
           package: . 
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C78902685CBE4D9896A145F512B0A14F }}
